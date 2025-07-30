@@ -13,6 +13,7 @@ Un template moderne et professionnel pour créer un portfolio de graphiste freel
 - ✅ **Responsive design** mobile-first
 - ✅ **Export statique** pour Netlify
 - ✅ **SEO optimisé**
+- ✅ **Authentification GitHub** (simple et gratuite)
 
 ## 📋 Prérequis
 
@@ -51,7 +52,18 @@ media_library:
     api_key: VOTRE_API_KEY
 ```
 
-### 4. Lancer le serveur de développement
+### 4. Configurer le repository GitHub
+
+1. Modifiez `public/admin/config.yml` avec votre repository :
+
+```yaml
+backend:
+  name: github
+  repo: votre-username/nom-du-repository
+  branch: main
+```
+
+### 5. Lancer le serveur de développement
 
 ```bash
 # Terminal 1 : Serveur Decap CMS (pour le développement local)
@@ -83,26 +95,26 @@ git push origin main
    - **Build command**: `pnpm build`
    - **Publish directory**: `out`
 
-### 3. Configurer l'authentification
+### 3. Configurer l'authentification GitHub
 
-#### Netlify Identity
+#### ⚠️ **Important :** Netlify Identity est déprécié depuis février 2025. Ce template utilise maintenant l'authentification GitHub directe.
 
-1. Dans votre dashboard Netlify : `Site settings > Identity`
-2. Cliquez sur "Enable Identity"
-3. Configurez les options :
-   - **Registration**: "Invite only" (recommandé)
-   - **External providers**: GitHub (optionnel)
+#### Configuration automatique
 
-#### Git Gateway
+L'authentification GitHub fonctionne automatiquement avec Decap CMS ! Aucune configuration supplémentaire n'est nécessaire sur Netlify.
 
-1. Toujours dans Identity : `Services > Git Gateway`
-2. Cliquez sur "Enable Git Gateway"
+**Comment ça marche :**
+1. Les utilisateurs vont sur `https://votre-site.netlify.app/admin`
+2. Ils cliquent sur "Login with GitHub"
+3. GitHub demande l'autorisation d'accès au repository
+4. Une fois autorisé, l'utilisateur peut modifier le contenu
 
-### 4. Créer un utilisateur admin
+#### Permissions requises
 
-1. Dans Identity, cliquez sur "Invite users"
-2. Invitez-vous avec votre email
-3. Vérifiez votre email et définissez un mot de passe
+Les utilisateurs doivent avoir **accès en écriture** au repository GitHub pour pouvoir modifier le contenu :
+- **Propriétaire** : Accès complet automatique
+- **Collaborateurs** : Ajouter via GitHub Settings > Manage access > Invite a collaborator
+- **Membres d'organisation** : Configurer les permissions au niveau de l'organisation
 
 ## ✏️ Utilisation du CMS
 
@@ -110,6 +122,13 @@ git push origin main
 
 - **En local**: `http://localhost:3000/admin`
 - **En production**: `https://votre-site.netlify.app/admin`
+
+### Première connexion
+
+1. Allez sur `/admin` de votre site déployé
+2. Cliquez sur **"Login with GitHub"**
+3. Autorisez l'application à accéder à votre repository
+4. ✅ Vous pouvez maintenant créer et modifier du contenu !
 
 ### Gérer le contenu
 
@@ -136,6 +155,28 @@ content/
     ├── 2024-01-15-mon-premier-projet.md
     └── 2024-02-20-identite-visuelle-startup.md
 ```
+
+## 👥 Gestion des utilisateurs
+
+### Ajouter des utilisateurs (pour les enseignants)
+
+Pour permettre à vos étudiants d'accéder au CMS :
+
+1. **Repository privé** : Ajoutez-les comme collaborateurs
+   - GitHub Repository > Settings > Manage access
+   - Invite a collaborator
+   - Rôle : **Write** (pour modifier le contenu)
+
+2. **Repository public** : Les étudiants peuvent fork
+   - Ils créent leur propre repository
+   - Modifient la config avec leur repository
+   - Déploient leur propre version
+
+### Permissions par défaut
+
+- ✅ **Propriétaire** : Accès complet
+- ✅ **Collaborateurs Write** : Peut créer/modifier le contenu
+- ❌ **Collaborateurs Read** : Lecture seule (pas d'accès CMS)
 
 ## 🎨 Personnalisation
 
@@ -243,7 +284,12 @@ pnpm lint                 # Vérification du code
 
 #### Le CMS ne charge pas
 - Vérifiez que `npx decap-server` fonctionne en local
-- Vérifiez la configuration Git Gateway sur Netlify
+- Vérifiez la configuration du repository dans `config.yml`
+- Assurez-vous d'avoir les permissions d'écriture sur le repository
+
+#### "Error loading the CMS configuration"
+- Vérifiez la syntaxe YAML dans `public/admin/config.yml`
+- Assurez-vous que le repository GitHub existe et est accessible
 
 #### Images qui ne s'affichent pas
 - Vérifiez votre configuration Cloudinary
@@ -253,6 +299,64 @@ pnpm lint                 # Vérification du code
 - Vérifiez que tous les fichiers Markdown ont un front-matter valide
 - Vérifiez la syntaxe YAML dans `config.yml`
 
+#### "Failed to persist entry"
+- L'utilisateur n'a pas les permissions d'écriture sur le repository
+- Ajoutez l'utilisateur comme collaborateur avec le rôle "Write"
+
+## 🎓 Guide pour les étudiants
+
+### Configuration rapide
+
+1. **Forkez** ce repository
+2. **Modifiez** `public/admin/config.yml` avec votre repository :
+   ```yaml
+   backend:
+     name: github
+     repo: votre-username/portfolio-template
+     branch: main
+   ```
+3. **Configurez** Cloudinary avec vos clés
+4. **Déployez** sur Netlify
+5. **Accédez** à `/admin` et connectez-vous avec GitHub
+
+### Workflow recommandé
+
+1. 📝 **Développement local** avec `pnpm dev`
+2. ✨ **Ajout de contenu** via `/admin`
+3. 🚀 **Push automatique** vers GitHub
+4. 🌐 **Déploiement automatique** sur Netlify
+
+## 🔄 Migration depuis Netlify Identity
+
+Si vous avez un projet existant avec Netlify Identity :
+
+### Étapes de migration
+
+1. **Sauvegardez** vos utilisateurs Netlify Identity
+2. **Modifiez** `public/admin/config.yml` :
+   ```yaml
+   # Remplacez :
+   backend:
+     name: git-gateway
+     branch: main
+   
+   # Par :
+   backend:
+     name: github
+     repo: username/repository-name
+     branch: main
+   ```
+3. **Supprimez** les redirects liés à Identity dans `netlify.toml`
+4. **Redéployez** votre site
+5. **Informez** les utilisateurs de se connecter avec GitHub
+
+### Avantages de la migration
+
+- ✅ **Plus simple** à configurer et maintenir
+- ✅ **Gratuit** et illimité
+- ✅ **Pas de dépendance** aux services dépréciés
+- ✅ **Meilleure** formation technique pour les étudiants
+
 ## 📚 Ressources
 
 - [Documentation Next.js](https://nextjs.org/docs)
@@ -261,11 +365,15 @@ pnpm lint                 # Vérification du code
 - [Composants shadcn/ui](https://ui.shadcn.com/)
 - [Documentation Cloudinary](https://cloudinary.com/documentation)
 - [Guide Netlify](https://docs.netlify.com/)
+- [Guide GitHub Collaborators](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository)
 
 ## 📄 Licence
 
 Ce template est sous licence MIT. Vous êtes libre de l'utiliser pour vos projets personnels et commerciaux.
 
 ---
+
+**✨ Mise à jour 2025 : Authentification GitHub directe**
+**Plus besoin de Netlify Identity ! Configuration simplifiée et 100% gratuite.**
 
 **Créé avec ❤️ pour les étudiants en design graphique**

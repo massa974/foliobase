@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: username/portfolio-repository  # À remplacer par le nom de votre repository
   branch: main
 
 # Configuration du stockage des médias avec Cloudinary
