@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: garry/Portfolio-com  # Remplacez par votre repository GitHub réel
+  repo: massa974/foliobase  # Remplacez par votre repository GitHub réel
   branch: dev
 
 # Configuration du stockage des médias avec Cloudinary
