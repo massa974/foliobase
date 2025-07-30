@@ -24,7 +24,8 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-        <div className="container mx-auto text-center max-w-4xl">
+        <div className="max-w-7xl mx-auto w-full px-4">
+          <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
             {pageData.title}
           </h1>
@@ -45,12 +46,13 @@ export default function Home() {
               <Link href="/about">En savoir plus</Link>
             </Button>
           </div>
+          </div>
         </div>
       </section>
 
       {/* Featured Projects Section */}
       <section className="py-20 px-4">
-        <div className="container mx-auto">
+        <div className="max-w-7xl mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Projets en vedette
@@ -134,7 +136,8 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-20 px-4 bg-muted/50">
-        <div className="container mx-auto text-center max-w-3xl">
+        <div className="max-w-7xl mx-auto w-full px-4">
+          <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Prêt(e) à donner vie à votre projet ?
           </h2>
@@ -148,10 +151,11 @@ export default function Home() {
               </Link>
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8" asChild>
-              <Link href="/about">
+                            <Link href="/about">
                 En savoir plus sur moi
               </Link>
             </Button>
+          </div>
           </div>
         </div>
       </section>

@@ -66,7 +66,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <div className="min-h-screen py-12">
-      <div className="container mx-auto px-4">
+      <div className="max-w-7xl mx-auto w-full px-4">
         {/* Navigation de retour */}
         <div className="mb-8">
           <Button variant="ghost" asChild>
@@ -78,7 +78,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
 
         {/* Header du projet */}
-        <div className="max-w-4xl mx-auto mb-12">
+        <div className="max-w-7xl mx-auto mb-12">
           <div className="flex flex-wrap gap-2 mb-4">
             <Badge variant="secondary">{project.project_type}</Badge>
             {project.client && (
@@ -116,7 +116,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Contenu principal */}
             <div className="lg:col-span-2">
@@ -244,7 +244,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
 
         {/* Navigation entre projets */}
-        <div className="max-w-4xl mx-auto mt-16">
+        <div className="max-w-7xl mx-auto mt-16">
           <Separator className="mb-8" />
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             {/* Projet précédent */}

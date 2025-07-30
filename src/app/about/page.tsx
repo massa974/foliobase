@@ -55,7 +55,8 @@ Prêt(e) à donner vie à votre projet ? Contactons-nous !`
 
   return (
     <div className="min-h-screen py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
+      <div className="max-w-7xl mx-auto w-full px-4">
+        <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -147,6 +148,7 @@ Prêt(e) à donner vie à votre projet ? Contactons-nous !`
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

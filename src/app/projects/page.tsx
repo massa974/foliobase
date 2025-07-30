@@ -6,7 +6,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen py-12">
-      <div className="container mx-auto px-4">
+      <div className="max-w-7xl mx-auto w-full px-4">
         {/* En-tête */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
