@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { PdfViewer } from '@/components/ui/pdf-viewer'
 import { ExternalLink, Image as ImageIcon, FileText, PlayCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useState, useEffect, useRef } from 'react'
 
 interface ProjectEvidenceProps {
   evidence: ProjectEvidence
@@ -24,9 +25,83 @@ interface ProjectEvidenceListProps {
 
 // Fonction utilitaire pour extraire l'ID YouTube d'une URL
 function getYouTubeVideoId(url: string): string | null {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{10,11})/
   const match = url.match(regex)
   return match ? match[1] : null
+}
+
+// Composant YouTube Embed avec lazy loading basé sur viewport
+function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isLoaded) {
+            setIsLoaded(true)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      {
+        threshold: 0.1, // Se déclenche quand 10% du composant est visible
+        rootMargin: '50px' // Charge 50px avant d'entrer dans le viewport
+      }
+    )
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current)
+      }
+    }
+  }, [isLoaded])
+
+  if (hasError) {
+    return (
+      <div className="aspect-video rounded-lg overflow-hidden bg-muted border-2 border-dashed border-muted-foreground/20">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center space-y-2">
+            <PlayCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+            <p className="text-sm text-muted-foreground">Vidéo non disponible</p>
+            <p className="text-xs text-muted-foreground">ID: {videoId}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div ref={containerRef} className="aspect-video rounded-lg overflow-hidden bg-muted">
+      {isLoaded ? (
+        <iframe
+          width="100%"
+          height="100%"
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title={title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="w-full h-full"
+          loading="lazy"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-muted">
+          <div className="text-center space-y-2">
+            <PlayCircle className="h-12 w-12 text-muted-foreground mx-auto animate-pulse" />
+            <p className="text-sm text-muted-foreground">Chargement de la vidéo...</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // Composant pour une preuve individuelle
@@ -144,18 +219,7 @@ export function ProjectEvidenceItem({ evidence, className, compact = false }: Pr
             {(() => {
               const videoId = getYouTubeVideoId(evidence.youtube_url)
               return videoId ? (
-                <div className="aspect-video rounded-lg overflow-hidden">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={`https://www.youtube.com/embed/${videoId}`}
-                    title={evidence.description}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                </div>
+                <YouTubeEmbed videoId={videoId} title={evidence.description} />
               ) : (
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground mb-2">URL YouTube :</p>
@@ -163,12 +227,6 @@ export function ProjectEvidenceItem({ evidence, className, compact = false }: Pr
                 </div>
               )
             })()}
-            <Button asChild className="w-full">
-              <a href={evidence.youtube_url} target="_blank" rel="noopener noreferrer">
-                <PlayCircle className="mr-2 h-4 w-4" />
-                Voir sur YouTube
-              </a>
-            </Button>
           </div>
         )}
       </CardContent>
