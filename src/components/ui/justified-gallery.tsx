@@ -1,6 +1,8 @@
 "use client"
 
-import PhotoAlbum from "react-photo-album"
+import { useRef, useMemo } from "react"
+import { RowsPhotoAlbum } from "react-photo-album"
+import "react-photo-album/rows.css"
 import { Gallery, GalleryImage, GalleryItem } from "./gallery"
 
 export interface JustifiedGalleryProps {
@@ -22,57 +24,81 @@ export function JustifiedGallery({
   containerWidth,
   options = {}
 }: JustifiedGalleryProps) {
-  // Transformation des images pour react-photo-album
-  const photos = images.map((image) => ({
-    src: image.src,
-    width: image.width,
-    height: image.height,
-    alt: image.alt,
-    caption: image.caption
-  }))
+  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  // Transformation des images pour react-photo-album avec validation et mémorisation
+  const photos = useMemo(() => {
+    if (!images || images.length === 0) {
+      return []
+    }
+    return images.map((image, index) => ({
+      src: image.src,
+      width: Math.max(image.width || 800, 100), // Minimum 100px pour éviter les erreurs
+      height: Math.max(image.height || 600, 100), // Minimum 100px pour éviter les erreurs
+      alt: image.alt || `Image ${index + 1}`,
+      caption: image.caption,
+      key: `photo-${index}-${image.src}` // Clé unique incluant l'URL pour forcer la mise à jour
+    }))
+  }, [images])
+
+  // Si pas d'images, ne rien afficher
+  if (!images || images.length === 0) {
+    return null
+  }
+
+  // S'assurer que triggerRefs a la bonne taille
+  if (triggerRefs.current.length !== images.length) {
+    triggerRefs.current = new Array(images.length).fill(null)
+  }
 
   return (
-    <Gallery 
-      images={images} 
-      className={className} 
-      withCaption={withCaption}
-      options={options}
-    >
-      <div>
+    <div className={className}>
+      <Gallery 
+        images={images} 
+        withCaption={withCaption}
+        options={{
+          bgOpacity: 0.9,
+          loop: true,
+          showHideOpacity: true,
+          ...options
+        }}
+      >
+        {/* Éléments PhotoSwipe cachés pour la lightbox */}
         {images.map((image, index) => (
-          <GalleryItem key={index} image={image}>
+          <GalleryItem key={`hidden-${index}-${image.src}`} image={image}>
             {({ ref, open }) => (
-              <div style={{ display: 'none' }}>
-                <div
-                  ref={ref}
-                  onClick={open}
-                  style={{ 
-                    width: '1px', 
-                    height: '1px', 
-                    opacity: 0,
-                    pointerEvents: 'none'
-                  }}
-                />
-              </div>
+              <button
+                ref={(el) => {
+                  triggerRefs.current[index] = el
+                  if (typeof ref === 'function') {
+                    ref(el)
+                  }
+                }}
+                onClick={open}
+                style={{ display: 'none' }}
+                aria-hidden="true"
+              />
             )}
           </GalleryItem>
         ))}
         
-        <PhotoAlbum
+        {/* Galerie justifiée visible */}
+        <RowsPhotoAlbum
           photos={photos}
-          layout="rows"
           targetRowHeight={targetRowHeight}
           spacing={spacing}
           defaultContainerWidth={containerWidth}
           onClick={({ index }) => {
-            // Déclencher l'ouverture de PhotoSwipe pour l'image correspondante
-            const galleryItems = document.querySelectorAll(`[data-gallery-index="${index}"]`)
-            if (galleryItems[0]) {
-              (galleryItems[0] as HTMLElement).click()
+            // Déclencher le bouton PhotoSwipe correspondant via ref
+            const trigger = triggerRefs.current[index]
+            if (trigger) {
+              trigger.click()
             }
           }}
+          // Forcer la mise à jour en passant une clé basée sur les dimensions
+          key={`justified-${photos.map(p => `${p.width}x${p.height}`).join('-')}`}
         />
-      </div>
-    </Gallery>
+      </Gallery>
+    </div>
   )
 } 

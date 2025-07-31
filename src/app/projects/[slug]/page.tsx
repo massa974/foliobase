@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ProjectEvidenceList } from "@/components/ui/project-evidence"
 import { ProjectObjectives, ProjectStrategy } from "@/components/ui/project-objectives"
+import { ProjectGallery } from "@/components/ui/project-gallery"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
@@ -145,22 +146,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </div>
 
               {/* Galerie d'images */}
-              {project.gallery && project.gallery.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-6">Galerie</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {project.gallery.map((item, index) => (
-                      <div key={index} className="rounded-lg overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={`${project.title} - Image ${index + 1}`}
-                          className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <ProjectGallery 
+                gallery={project.gallery}
+                title="Galerie"
+                defaultLayout="justified"
+                showLayoutSwitcher={false}
+                className="mb-8"
+              />
 
               {/* Stratégie et ciblage */}
               <ProjectStrategy 

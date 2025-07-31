@@ -6,11 +6,12 @@ import { JustifiedGallery } from "./justified-gallery"
 import { MasonryGallery } from "./masonry-gallery"
 import { useGallery, ProjectGalleryItem } from "@/hooks/use-gallery"
 import { Button } from "./button"
-import { Grid, LayoutGrid, Columns } from "lucide-react"
+import { Skeleton } from "./skeleton"
+import { Grid, LayoutGrid, Columns, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface ProjectGalleryProps {
-  gallery: ProjectGalleryItem[] | undefined
+  gallery: ProjectGalleryItem[] | string[][] | undefined
   title?: string
   className?: string
   defaultLayout?: "grid" | "justified" | "masonry"
@@ -27,7 +28,11 @@ export function ProjectGallery({
   showLayoutSwitcher = true
 }: ProjectGalleryProps) {
   const [currentLayout, setCurrentLayout] = useState<GalleryLayout>(defaultLayout)
-  const { images, hasImages } = useGallery(gallery)
+  const { images, hasImages, isLoading } = useGallery(gallery, {
+    loadRealDimensions: true,
+    defaultWidth: 1200,
+    defaultHeight: 800
+  })
 
   if (!hasImages) {
     return null
@@ -52,11 +57,21 @@ export function ProjectGallery({
       withCaption: true
     }
 
+    // Si on est en mode justified et que les dimensions se chargent encore, 
+    // utiliser une hauteur de ligne plus conservatrice
+    const targetRowHeight = isLoading ? 150 : 200
+
     switch (currentLayout) {
       case "justified":
-        return <JustifiedGallery {...commonProps} targetRowHeight={200} />
+        return (
+          <JustifiedGallery 
+            {...commonProps} 
+            targetRowHeight={targetRowHeight}
+            spacing={8}
+          />
+        )
       case "masonry":
-        return <MasonryGallery {...commonProps} columns={3} />
+        return <MasonryGallery {...commonProps} columns={3} spacing={8} />
       case "grid":
       default:
         return (
@@ -72,7 +87,15 @@ export function ProjectGallery({
   return (
     <div className={cn("mb-8", className)}>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Optimisation des dimensions...</span>
+            </div>
+          )}
+        </div>
         
         {showLayoutSwitcher && (
           <div className="flex gap-1 p-1 bg-muted rounded-lg">
@@ -100,7 +123,16 @@ export function ProjectGallery({
         )}
       </div>
       
-      {renderGallery()}
+      {/* Afficher un skeleton pendant le chargement initial si pas d'images encore */}
+      {images.length === 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+          ))}
+        </div>
+      ) : (
+        renderGallery()
+      )}
     </div>
   )
 } 

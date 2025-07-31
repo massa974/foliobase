@@ -69,9 +69,19 @@ export function Footer() {
           <p className="text-xs text-muted-foreground">
             © {currentYear} Portfolio. Tous droits réservés.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Créé avec Next.js & Decap CMS
-          </p>
+          <div className="flex items-center gap-4">
+            {process.env.NODE_ENV === 'development' && (
+              <Link 
+                href="/test" 
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                [Dev] Test Galeries
+              </Link>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Créé avec Next.js & Decap CMS
+            </p>
+          </div>
         </div>
       </div>
     </footer>
